@@ -6,5 +6,5 @@ JUST FOR FUN
 ## PHP
 
 - depend on
- * go get github.com/cznic/golex
- * go get github.com/cznic/goyacc
+ * [re2c](http://re2c.org/manual/manual_go.html)
+ * [bison](https://github.com/akimd/bison)
