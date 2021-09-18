@@ -1,13 +1,33 @@
-package zend
+package main
 
 import (
 	"fmt"
 )
 
+//STATE
+const (
+	ST_IN_SCRIPTING = iota
+)
 
-func lex_scan(zendlval Zval){
-	var cursor int
-	count := 0
+//TOKEN
+const (
+	T_EXIT = iota
+)
+
+func main(){
+	lex_scan("<?php exit;?>")
+}
+
+func YYDEBUG(s int64, c byte){
+	fmt.Println(s,c)
+}
+
+func lex_scan(zendlval string){
+
+var token int
+var offset int
+var cursor int
+count := 0
 
 restart:
 	SCNG(yy_text) = YYCURSOR;
@@ -16,7 +36,7 @@ restart:
 re2c:yyfill:check = 0;
 re2c:yyfill:enable = 0;
 re2c:define:YYCTYPE = byte;
-re2c:define:YYPEEK = "str[cursor]";
+re2c:define:YYPEEK = "zendlval[cursor]";
 re2c:define:YYSKIP = "cursor += 1";
 
 LNUM	= [0-9]+("_"[0-9]+)*;
@@ -30,16 +50,13 @@ TABS_AND_SPACES = [ \t]*;
 TOKENS = [;:,.|^&+-/*=%!~$<>?@];
 ANY_CHAR = [^];
 NEWLINE = ("\r"|"\n"|"\r\n");
-*      { return -1 }
-[\x00] { return count }
-[a-z]+ { count += 1; goto loop }
-[ ]+   { goto restart }
 
 /* compute yyleng before each rule */
 <!*> := yyleng = YYCURSOR - SCNG(yy_text);
 
 <ST_IN_SCRIPTING> "exit" {
-	RETURN_TOKEN_WITH_IDENT(T_EXIT);
+	fmt.Println(YYCURSOR)
+	go restart
 }
 */
 }
