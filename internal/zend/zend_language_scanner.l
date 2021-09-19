@@ -6,38 +6,53 @@ import (
 
 //STATE
 const (
-	ST_IN_SCRIPTING = iota
+	yyc_INITIAL = iota
+	yyc_ST_IN_SCRIPTING = iota
 )
 
 //TOKEN
 const (
 	T_EXIT = iota
+	T_OPEN_TAG = iota
 )
 
+
+
 func main(){
-	lex_scan("<?php exit;?>")
+	input := "<?php echo '123'; exit;?>"
+	lex_scan(input)
 }
 
 func YYDEBUG(s int64, c byte){
 	fmt.Println(s,c)
 }
 
+func SCNG(yyvar interface{}) int64{
+	fmt.Println(yyvar)
+	return 0
+}
+
 func lex_scan(zendlval string){
 
-var token int
-var offset int
-var cursor int
+var token uint64
+var offset uint64
+var cursor uint64
 count := 0
 
+var yyleng uint64
+YYCURSOR := LanguageScannerGlobals.YYCursor
+
 restart:
-	SCNG(yy_text) = YYCURSOR;
+	LanguageScannerGlobals.YYText = YYCURSOR;
+	fmt.Println(YYCURSOR,LanguageScannerGlobals.YYState)
 
 /*!re2c
 re2c:yyfill:check = 0;
 re2c:yyfill:enable = 0;
 re2c:define:YYCTYPE = byte;
 re2c:define:YYPEEK = "zendlval[cursor]";
-re2c:define:YYSKIP = "cursor += 1";
+re2c:define:YYGETCONDITION = "LanguageScannerGlobals.YYState";
+re2c:define:YYSKIP = "LanguageScannerGlobals.YYCursor += 1";
 
 LNUM	= [0-9]+("_"[0-9]+)*;
 DNUM	= ({LNUM}?"."{LNUM})|({LNUM}"."{LNUM}?);
@@ -52,11 +67,20 @@ ANY_CHAR = [^];
 NEWLINE = ("\r"|"\n"|"\r\n");
 
 /* compute yyleng before each rule */
-<!*> := yyleng = YYCURSOR - SCNG(yy_text);
+<!*> := yyleng = YYCURSOR - LanguageScannerGlobals.YYText
+
 
 <ST_IN_SCRIPTING> "exit" {
-	fmt.Println(YYCURSOR)
-	go restart
+	fmt.Println("exit")
+	fmt.Println(cursor,token,offset,count,yyleng)
+	goto restart
 }
+
+
+<INITIAL> "<?php" {
+	BEGIN(yyc_ST_IN_SCRIPTING)
+	fmt.Println("<?php")
+}
+
 */
 }

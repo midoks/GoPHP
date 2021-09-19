@@ -1,4 +1,4 @@
-package zend
+package main
 
 //http://golang.org/ref/spec#Struct_types
 import ()
