@@ -38,7 +38,6 @@ func lex_scan(zendlval string) int64 {
 
 var token uint64
 var offset uint64
-var cursor uint64
 
 var yyleng uint64
 YYCURSOR := &LanguageScannerGlobals.YYCursor
@@ -70,13 +69,13 @@ NEWLINE = ("\r"|"\n"|"\r\n");
 
 <ST_IN_SCRIPTING> "exit" {
 	fmt.Println("exit")
-	fmt.Println(cursor,token,offset,yyleng,*YYCURSOR)
+	fmt.Println(token,offset,yyleng,*YYCURSOR)
 	return  T_EXIT;
 }
 
 <ST_IN_SCRIPTING> "echo" {
 	fmt.Println("echo")
-	fmt.Println(cursor,token,offset,yyleng,*YYCURSOR)
+	fmt.Println(token,offset,yyleng,*YYCURSOR)
 	return  T_ECHO;
 }
 
@@ -84,7 +83,7 @@ NEWLINE = ("\r"|"\n"|"\r\n");
 <INITIAL> "<?php" {
 	BEGIN(yyc_ST_IN_SCRIPTING)
 	fmt.Println("<?php")
-	fmt.Println(cursor,token,offset,yyleng,*YYCURSOR)
+	fmt.Println(token,offset,yyleng,*YYCURSOR)
 	return  T_OPEN_TAG;
 }
 
