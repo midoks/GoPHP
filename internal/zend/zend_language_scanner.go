@@ -7,86 +7,239 @@ import (
 
 //STATE
 const (
-	ST_IN_SCRIPTING = iota
+	yyc_INITIAL = 0
+	yyc_ST_IN_SCRIPTING = 1
 )
 
 //TOKEN
 const (
 	T_EXIT = iota
+	T_OPEN_TAG = iota
+	T_CLOSE_TAG = iota
+	T_ECHO = iota
 )
 
+
+
 func main(){
-	lex_scan("<?php exit;?>")
+	input := "<?php echo '123'; exit;?>\n"
+	lex_scan(input)
 }
 
 func YYDEBUG(s int64, c byte){
 	fmt.Println(s,c)
 }
 
-func lex_scan(zendlval string){
+func SCNG(yyvar interface{}) int64{
+	fmt.Println(yyvar)
+	return 0
+}
 
-var token int
-var offset int
-var cursor int
-count := 0
+func lex_scan(zendlval string) int64 {
 
-restart:
-	SCNG(yy_text) = YYCURSOR;
+var token uint64
+var offset uint64
+var cursor uint64
+
+var yyleng uint64
+YYCURSOR := &LanguageScannerGlobals.YYCursor
+YYSTATE := &LanguageScannerGlobals.YYState
 
 
 {
 	var yych byte
-	goto yyc_ST_IN_SCRIPTING
+	if (*YYSTATE < 1) {
+		goto yyc_ST_IN_SCRIPTING
+	} else {
+		goto yyc_INITIAL
+	}
 /* *********************************** */
 yyc_ST_IN_SCRIPTING:
-	YYDEBUG(0, *YYCURSOR)
-	yych = zendlval[cursor]
-	if (yych == 'E') {
-		goto yy3
-	}
-	if (yych == 'e') {
-		goto yy3
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych <= 'D') {
+		if (yych == '?') {
+			goto yy3
+		}
+	} else {
+		if (yych <= 'E') {
+			goto yy4
+		}
+		if (yych == 'e') {
+			goto yy4
+		}
 	}
 yy2:
-	YYDEBUG(2, zendlval[cursor]())
 yy3:
-	YYDEBUG(3, zendlval[cursor]())
-	cursor += 1
-	yych = zendlval[cursor]
-	if (yych == 'X') {
-		goto yy4
-	}
-	if (yych != 'x') {
-		goto yy2
-	}
-yy4:
-	YYDEBUG(4, zendlval[cursor]())
-	cursor += 1
-	yych = zendlval[cursor]
-	if (yych == 'I') {
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == '>') {
 		goto yy5
 	}
-	if (yych != 'i') {
-		goto yy2
+	goto yy2
+yy4:
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych <= 'X') {
+		if (yych == 'C') {
+			goto yy7
+		}
+		if (yych <= 'W') {
+			goto yy2
+		}
+		goto yy8
+	} else {
+		if (yych <= 'c') {
+			if (yych <= 'b') {
+				goto yy2
+			}
+			goto yy7
+		} else {
+			if (yych == 'x') {
+				goto yy8
+			}
+			goto yy2
+		}
 	}
 yy5:
-	YYDEBUG(5, zendlval[cursor]())
-	cursor += 1
-	yych = zendlval[cursor]
-	if (yych == 'T') {
-		goto yy6
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == '\n') {
+		goto yy9
 	}
-	if (yych != 't') {
-		goto yy2
+	if (yych == '\r') {
+		goto yy10
 	}
 yy6:
-	YYDEBUG(6, zendlval[cursor]())
-	cursor += 1
-	YYDEBUG(7, zendlval[cursor]())
-	yyleng = YYCURSOR - SCNG(yy_text);
 	{
-	fmt.Println(YYCURSOR)
-	go restart
+	BEGIN(yyc_INITIAL);
+	fmt.Println(yyleng,*YYCURSOR)
+	fmt.Println("?>")
+	return T_CLOSE_TAG;
+}
+yy7:
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == 'H') {
+		goto yy11
+	}
+	if (yych == 'h') {
+		goto yy11
+	}
+	goto yy2
+yy8:
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == 'I') {
+		goto yy12
+	}
+	if (yych == 'i') {
+		goto yy12
+	}
+	goto yy2
+yy9:
+	*YYCURSOR += 1
+	goto yy6
+yy10:
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == '\n') {
+		goto yy9
+	}
+	goto yy6
+yy11:
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == 'O') {
+		goto yy13
+	}
+	if (yych == 'o') {
+		goto yy13
+	}
+	goto yy2
+yy12:
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == 'T') {
+		goto yy15
+	}
+	if (yych == 't') {
+		goto yy15
+	}
+	goto yy2
+yy13:
+	*YYCURSOR += 1
+	{
+	fmt.Println("echo")
+	fmt.Println(cursor,token,offset,yyleng,*YYCURSOR)
+	return  T_ECHO;
+}
+yy15:
+	*YYCURSOR += 1
+	{
+	fmt.Println("exit")
+	fmt.Println(cursor,token,offset,yyleng,*YYCURSOR)
+	return  T_EXIT;
+}
+/* *********************************** */
+yyc_INITIAL:
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == '<') {
+		goto yy20
+	}
+yy19:
+yy20:
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych != '?') {
+		goto yy19
+	}
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == 'P') {
+		goto yy22
+	}
+	if (yych != 'p') {
+		goto yy19
+	}
+yy22:
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == 'H') {
+		goto yy23
+	}
+	if (yych != 'h') {
+		goto yy19
+	}
+yy23:
+	*YYCURSOR += 1
+	yych = zendlval[*YYCURSOR]
+ fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+	if (yych == 'P') {
+		goto yy24
+	}
+	if (yych != 'p') {
+		goto yy19
+	}
+yy24:
+	*YYCURSOR += 1
+	{
+	BEGIN(yyc_ST_IN_SCRIPTING)
+	fmt.Println("<?php")
+	fmt.Println(cursor,token,offset,yyleng,*YYCURSOR)
+	return  T_OPEN_TAG;
 }
 }
 
