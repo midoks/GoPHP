@@ -25,8 +25,8 @@ func main(){
 	lex_scan(input)
 }
 
-func YYDEBUG(s int64, c byte){
-	fmt.Println(s,c)
+func YYDEBUG(s uint64, c byte){
+	fmt.Println(s,string(c))
 }
 
 func SCNG(yyvar interface{}) int64{
@@ -47,7 +47,7 @@ YYSTATE := &LanguageScannerGlobals.YYState
 re2c:yyfill:check = 0;
 re2c:yyfill:enable = 0;
 re2c:define:YYCTYPE = byte;
-re2c:define:YYPEEK = "zendlval[*YYCURSOR]\n fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))";
+re2c:define:YYPEEK = "zendlval[*YYCURSOR]\n YYDEBUG(*YYCURSOR, yych)";
 re2c:define:YYGETCONDITION = "*YYSTATE";
 re2c:define:YYSKIP = "*YYCURSOR += 1";
 

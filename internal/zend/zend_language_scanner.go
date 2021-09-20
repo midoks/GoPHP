@@ -26,8 +26,8 @@ func main(){
 	lex_scan(input)
 }
 
-func YYDEBUG(s int64, c byte){
-	fmt.Println(s,c)
+func YYDEBUG(s uint64, c byte){
+	fmt.Println(s,string(c))
 }
 
 func SCNG(yyvar interface{}) int64{
@@ -55,7 +55,7 @@ YYSTATE := &LanguageScannerGlobals.YYState
 /* *********************************** */
 yyc_ST_IN_SCRIPTING:
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych <= 'D') {
 		if (yych == '?') {
 			goto yy3
@@ -72,7 +72,7 @@ yy2:
 yy3:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == '>') {
 		goto yy5
 	}
@@ -80,7 +80,7 @@ yy3:
 yy4:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych <= 'X') {
 		if (yych == 'C') {
 			goto yy7
@@ -105,7 +105,7 @@ yy4:
 yy5:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == '\n') {
 		goto yy9
 	}
@@ -122,7 +122,7 @@ yy6:
 yy7:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == 'H') {
 		goto yy11
 	}
@@ -133,7 +133,7 @@ yy7:
 yy8:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == 'I') {
 		goto yy12
 	}
@@ -147,7 +147,7 @@ yy9:
 yy10:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == '\n') {
 		goto yy9
 	}
@@ -155,7 +155,7 @@ yy10:
 yy11:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == 'O') {
 		goto yy13
 	}
@@ -166,7 +166,7 @@ yy11:
 yy12:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == 'T') {
 		goto yy15
 	}
@@ -191,7 +191,7 @@ yy15:
 /* *********************************** */
 yyc_INITIAL:
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == '<') {
 		goto yy20
 	}
@@ -199,13 +199,13 @@ yy19:
 yy20:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych != '?') {
 		goto yy19
 	}
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == 'P') {
 		goto yy22
 	}
@@ -215,7 +215,7 @@ yy20:
 yy22:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == 'H') {
 		goto yy23
 	}
@@ -225,7 +225,7 @@ yy22:
 yy23:
 	*YYCURSOR += 1
 	yych = zendlval[*YYCURSOR]
- fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))
+ YYDEBUG(*YYCURSOR, yych)
 	if (yych == 'P') {
 		goto yy24
 	}
