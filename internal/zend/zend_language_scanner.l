@@ -36,20 +36,23 @@ func SCNG(yyvar interface{}) int64{
 
 func lex_scan(zendlval string) int64 {
 
-var token uint64
+var token int64
 var offset uint64
 
 var yyleng uint64
-YYCURSOR := &LanguageScannerGlobals.YYCursor
-YYSTATE := &LanguageScannerGlobals.YYState
+YYCursor := &LanguageScannerGlobals.YYCursor
+YYState := &LanguageScannerGlobals.YYState
+YYText := &LanguageScannerGlobals.YYText
+restart:
+	LanguageScannerGlobals.YYText = *YYCursor;
 
 /*!re2c
 re2c:yyfill:check = 0;
 re2c:yyfill:enable = 0;
 re2c:define:YYCTYPE = byte;
-re2c:define:YYPEEK = "zendlval[*YYCURSOR]\n YYDEBUG(*YYCURSOR, yych)";
-re2c:define:YYGETCONDITION = "*YYSTATE";
-re2c:define:YYSKIP = "*YYCURSOR += 1";
+re2c:define:YYPEEK = "zendlval[*YYCursor]\n\tYYDEBUG(*YYCursor, yych)";
+re2c:define:YYGETCONDITION = "*YYState";
+re2c:define:YYSKIP = "*YYCursor += 1";
 
 LNUM	= [0-9]+("_"[0-9]+)*;
 DNUM	= ({LNUM}?"."{LNUM})|({LNUM}"."{LNUM}?);
@@ -64,35 +67,42 @@ ANY_CHAR = [^];
 NEWLINE = ("\r"|"\n"|"\r\n");
 
 /* compute yyleng before each rule */
-/* <!*> := yyleng = YYCURSOR - LanguageScannerGlobals.YYText */
+<!*> := yyleng = *YYCursor - *YYText
 
 
-<ST_IN_SCRIPTING> "exit" {
+<ST_IN_SCRIPTING>"exit"{
+	token = T_EXIT
 	fmt.Println("exit")
-	fmt.Println(token,offset,yyleng,*YYCURSOR)
-	return  T_EXIT;
+	fmt.Println(token,offset,yyleng,*YYCursor)
+	
 }
 
-<ST_IN_SCRIPTING> "echo" {
+<ST_IN_SCRIPTING>"echo"{
+	token = T_CLOSE_TAG
 	fmt.Println("echo")
-	fmt.Println(token,offset,yyleng,*YYCURSOR)
-	return  T_ECHO;
+	fmt.Println(token,offset,yyleng,*YYCursor)
 }
 
 
-<INITIAL> "<?php" {
+<INITIAL>"<?php"{
 	BEGIN(yyc_ST_IN_SCRIPTING)
+	token = T_OPEN_TAG
 	fmt.Println("<?php")
-	fmt.Println(token,offset,yyleng,*YYCURSOR)
-	return  T_OPEN_TAG;
+	fmt.Println(token,offset,yyleng,*YYCursor)
+	goto emit_token_with_ident
 }
 
-<ST_IN_SCRIPTING>"?>"{NEWLINE}? {
+<ST_IN_SCRIPTING>"?>"{NEWLINE}?{
 	BEGIN(yyc_INITIAL);
-	fmt.Println(yyleng,*YYCURSOR)
-	fmt.Println("?>")
-	return T_CLOSE_TAG;
+	token = T_CLOSE_TAG
+	fmt.Println(yyleng,*YYCursor)
+	fmt.Println("T_CLOSE_TAG - ?>")
+	goto restart
 }
 
 */
+
+emit_token_with_ident:
+	return token;
+
 }

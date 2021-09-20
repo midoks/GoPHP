@@ -37,25 +37,28 @@ func SCNG(yyvar interface{}) int64{
 
 func lex_scan(zendlval string) int64 {
 
-var token uint64
+var token int64
 var offset uint64
 
 var yyleng uint64
-YYCURSOR := &LanguageScannerGlobals.YYCursor
-YYSTATE := &LanguageScannerGlobals.YYState
+YYCursor := &LanguageScannerGlobals.YYCursor
+YYState := &LanguageScannerGlobals.YYState
+YYText := &LanguageScannerGlobals.YYText
+restart:
+	LanguageScannerGlobals.YYText = *YYCursor;
 
 
 {
 	var yych byte
-	if (*YYSTATE < 1) {
+	if (*YYState < 1) {
 		goto yyc_ST_IN_SCRIPTING
 	} else {
 		goto yyc_INITIAL
 	}
 /* *********************************** */
 yyc_ST_IN_SCRIPTING:
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych <= 'D') {
 		if (yych == '?') {
 			goto yy3
@@ -70,17 +73,17 @@ yyc_ST_IN_SCRIPTING:
 	}
 yy2:
 yy3:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == '>') {
 		goto yy5
 	}
 	goto yy2
 yy4:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych <= 'X') {
 		if (yych == 'C') {
 			goto yy7
@@ -103,9 +106,9 @@ yy4:
 		}
 	}
 yy5:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == '\n') {
 		goto yy9
 	}
@@ -113,16 +116,18 @@ yy5:
 		goto yy10
 	}
 yy6:
+	yyleng = *YYCursor - *YYText
 	{
 	BEGIN(yyc_INITIAL);
-	fmt.Println(yyleng,*YYCURSOR)
-	fmt.Println("?>")
-	return T_CLOSE_TAG;
+	token = T_CLOSE_TAG
+	fmt.Println(yyleng,*YYCursor)
+	fmt.Println("T_CLOSE_TAG - ?>")
+	goto restart
 }
 yy7:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == 'H') {
 		goto yy11
 	}
@@ -131,9 +136,9 @@ yy7:
 	}
 	goto yy2
 yy8:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == 'I') {
 		goto yy12
 	}
@@ -142,20 +147,20 @@ yy8:
 	}
 	goto yy2
 yy9:
-	*YYCURSOR += 1
+	*YYCursor += 1
 	goto yy6
 yy10:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == '\n') {
 		goto yy9
 	}
 	goto yy6
 yy11:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == 'O') {
 		goto yy13
 	}
@@ -164,9 +169,9 @@ yy11:
 	}
 	goto yy2
 yy12:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == 'T') {
 		goto yy15
 	}
@@ -175,37 +180,40 @@ yy12:
 	}
 	goto yy2
 yy13:
-	*YYCURSOR += 1
+	*YYCursor += 1
+	yyleng = *YYCursor - *YYText
 	{
+	token = T_CLOSE_TAG
 	fmt.Println("echo")
-	fmt.Println(token,offset,yyleng,*YYCURSOR)
-	return  T_ECHO;
+	fmt.Println(token,offset,yyleng,*YYCursor)
 }
 yy15:
-	*YYCURSOR += 1
+	*YYCursor += 1
+	yyleng = *YYCursor - *YYText
 	{
+	token = T_EXIT
 	fmt.Println("exit")
-	fmt.Println(token,offset,yyleng,*YYCURSOR)
-	return  T_EXIT;
+	fmt.Println(token,offset,yyleng,*YYCursor)
+	
 }
 /* *********************************** */
 yyc_INITIAL:
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == '<') {
 		goto yy20
 	}
 yy19:
 yy20:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych != '?') {
 		goto yy19
 	}
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == 'P') {
 		goto yy22
 	}
@@ -213,9 +221,9 @@ yy20:
 		goto yy19
 	}
 yy22:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == 'H') {
 		goto yy23
 	}
@@ -223,9 +231,9 @@ yy22:
 		goto yy19
 	}
 yy23:
-	*YYCURSOR += 1
-	yych = zendlval[*YYCURSOR]
- YYDEBUG(*YYCURSOR, yych)
+	*YYCursor += 1
+	yych = zendlval[*YYCursor]
+	YYDEBUG(*YYCursor, yych)
 	if (yych == 'P') {
 		goto yy24
 	}
@@ -233,13 +241,19 @@ yy23:
 		goto yy19
 	}
 yy24:
-	*YYCURSOR += 1
+	*YYCursor += 1
+	yyleng = *YYCursor - *YYText
 	{
 	BEGIN(yyc_ST_IN_SCRIPTING)
+	token = T_OPEN_TAG
 	fmt.Println("<?php")
-	fmt.Println(token,offset,yyleng,*YYCURSOR)
-	return  T_OPEN_TAG;
+	fmt.Println(token,offset,yyleng,*YYCursor)
+	goto emit_token_with_ident
 }
 }
+
+
+emit_token_with_ident:
+	return token;
 
 }

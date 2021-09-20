@@ -12,6 +12,7 @@ type ZendPhpScannerGlobals struct {
 	YYCursor uint64
 	YYMarker uint64
 	YYText   uint64
+	YYLimit  uint64
 
 	YYState int32
 }
