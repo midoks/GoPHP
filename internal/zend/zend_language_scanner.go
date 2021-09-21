@@ -7,16 +7,15 @@ import (
 
 //STATE
 const (
-	yyc_INITIAL = 0
-	yyc_ST_IN_SCRIPTING = 1
+	yyc_INITIAL = iota
+	yyc_ST_IN_SCRIPTING
 )
-
 //TOKEN
 const (
 	T_EXIT = iota
-	T_OPEN_TAG = iota
-	T_CLOSE_TAG = iota
-	T_ECHO = iota
+	T_OPEN_TAG
+	T_CLOSE_TAG
+	T_ECHO
 )
 
 
@@ -44,8 +43,14 @@ var yyleng uint64
 YYCursor := &LanguageScannerGlobals.YYCursor
 YYState := &LanguageScannerGlobals.YYState
 YYText := &LanguageScannerGlobals.YYText
+
+fmt.Println("YYState[yyc_ST_IN_SCRIPTING]:", yyc_ST_IN_SCRIPTING)
+fmt.Println("YYState[yyc_INITIAL]:", yyc_INITIAL)
+
+/*
 restart:
-	LanguageScannerGlobals.YYText = *YYCursor;
+	fmt.Println("restart:",*YYCursor,LanguageScannerGlobals.YYState)
+*/
 
 
 {
@@ -118,11 +123,11 @@ yy5:
 yy6:
 	yyleng = *YYCursor - *YYText
 	{
-	BEGIN(yyc_INITIAL);
+	*YYState = yyc_ST_IN_SCRIPTING
 	token = T_CLOSE_TAG
 	fmt.Println(yyleng,*YYCursor)
 	fmt.Println("T_CLOSE_TAG - ?>")
-	goto restart
+	goto emit_token_with_ident
 }
 yy7:
 	*YYCursor += 1
@@ -184,8 +189,8 @@ yy13:
 	yyleng = *YYCursor - *YYText
 	{
 	token = T_CLOSE_TAG
-	fmt.Println("echo")
 	fmt.Println(token,offset,yyleng,*YYCursor)
+	fmt.Println("echo")
 }
 yy15:
 	*YYCursor += 1
@@ -244,16 +249,15 @@ yy24:
 	*YYCursor += 1
 	yyleng = *YYCursor - *YYText
 	{
-	BEGIN(yyc_ST_IN_SCRIPTING)
+	*YYState = yyc_INITIAL
 	token = T_OPEN_TAG
-	fmt.Println("<?php")
 	fmt.Println(token,offset,yyleng,*YYCursor)
-	goto emit_token_with_ident
+	fmt.Println("token:T_OPEN_TAG:<?php")
 }
 }
-
 
 emit_token_with_ident:
 	return token;
 
+return token
 }

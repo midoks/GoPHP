@@ -1,0 +1,54 @@
+state 0 //
+
+    0 $accept: . expr
+
+    NUM  shift, and goto state 2
+
+    expr  goto state 1
+
+state 1 // NUM [$end]
+
+    0 $accept: expr .  [$end]
+    2 expr: expr . '+' NUM
+    3 expr: expr . '-' NUM
+
+    $end  accept
+    '+'   shift, and goto state 3
+    '-'   shift, and goto state 4
+
+state 2 // NUM
+
+    1 expr: NUM .  [$end, '+', '-']
+
+    $end  reduce using rule 1 (expr)
+    '+'   reduce using rule 1 (expr)
+    '-'   reduce using rule 1 (expr)
+
+state 3 // NUM '+'
+
+    2 expr: expr '+' . NUM
+
+    NUM  shift, and goto state 6
+
+state 4 // NUM '-'
+
+    3 expr: expr '-' . NUM
+
+    NUM  shift, and goto state 5
+
+state 5 // NUM '-' NUM
+
+    3 expr: expr '-' NUM .  [$end, '+', '-']
+
+    $end  reduce using rule 3 (expr)
+    '+'   reduce using rule 3 (expr)
+    '-'   reduce using rule 3 (expr)
+
+state 6 // NUM '+' NUM
+
+    2 expr: expr '+' NUM .  [$end, '+', '-']
+
+    $end  reduce using rule 2 (expr)
+    '+'   reduce using rule 2 (expr)
+    '-'   reduce using rule 2 (expr)
+
