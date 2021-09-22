@@ -7,7 +7,7 @@
 re2go -i --no-generation-date --case-inverted -cbF -o zend_language_scanner.go zend_language_scanner.l
 
 
-
+source ~/.bash_profile
 goyacc  -o zend_language_parser.go -v zend_language_parser.output zend_language_parser.y
 
 go run  zend_language_scanner.go zend_globals.go
