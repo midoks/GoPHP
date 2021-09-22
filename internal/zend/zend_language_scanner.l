@@ -21,7 +21,13 @@ const (
 
 func main(){
 	input := "<?php echo '123'; exit;?>\n"
-	lex_scan(input)
+	for{
+		token := lex_scan(input)
+		fmt.Println("token:",token)
+		if token == T_END {
+			break
+		}
+	}
 }
 
 func YYDEBUG(s uint64, c byte){
