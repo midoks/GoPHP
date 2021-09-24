@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
+	//"strings"
 )
 
 //TOKEN
@@ -37,8 +37,8 @@ func getc() byte {
 }
 
 func main() {
-	input := "<?php echo '123'; exit; ?>\n"
-	src = strings.NewReader(input)
+	// input := "<?php echo '123'; exit; ?>\n"
+	// src := strings.NewReader(input)
 	lex_scan()
 }
 
@@ -59,8 +59,6 @@ func lex_scan() { // This left brace is closed by *1
 
 yystate0:
 
-	buf = buf[:0] // Code before the first rule is executed before every scan cycle (state 0 action)
-
 	goto yystart1
 
 yystate1:
@@ -68,9 +66,11 @@ yystate1:
 yystart1:
 	switch {
 	default:
-		goto yystate3 // c >= '\x01' && c <= '\b' || c == '\v' || c == '\f' || c >= '\x0e' && c <= '\x1f' || c >= '!' && c <= '-' || c == '/' || c >= ':' && c <= '@' || c >= '[' && c <= '^' || c == '`' || c >= '{' && c <= '\u007f'
+		goto yystate3 // c >= '\x01' && c <= '\b' || c == '\v' || c == '\f' || c >= '\x0e' && c <= '\x1f' || c >= '!' && c <= '-' || c == '/' || c == ':' || c == ';' || c >= '=' && c <= 'ÿ'
 	case c == '.':
 		goto yystate6
+	case c == '<':
+		goto yystate10
 	case c == '\n':
 		goto yystate5
 	case c == '\t' || c == '\r' || c == ' ':
@@ -79,8 +79,6 @@ yystart1:
 		goto yystate2
 	case c >= '0' && c <= '9':
 		goto yystate8
-	case c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z' || c >= '\u0080' && c <= 'ÿ':
-		goto yystate10
 	}
 
 yystate2:
@@ -95,7 +93,7 @@ yystate4:
 	c = getc()
 	switch {
 	default:
-		goto yyrule1
+		goto yyrule2
 	case c == '\t' || c == '\n' || c == '\r' || c == ' ':
 		goto yystate5
 	}
@@ -104,7 +102,7 @@ yystate5:
 	c = getc()
 	switch {
 	default:
-		goto yyrule1
+		goto yyrule2
 	case c == '\t' || c == '\n' || c == '\r' || c == ' ':
 		goto yystate5
 	}
@@ -131,7 +129,7 @@ yystate8:
 	c = getc()
 	switch {
 	default:
-		goto yyrule2
+		goto yyrule3
 	case c == '.':
 		goto yystate7
 	case c >= '0' && c <= '9':
@@ -142,7 +140,7 @@ yystate9:
 	c = getc()
 	switch {
 	default:
-		goto yyrule2
+		goto yyrule3
 	case c == '.':
 		goto yystate7
 	case c >= '0' && c <= '9':
@@ -153,8 +151,8 @@ yystate10:
 	c = getc()
 	switch {
 	default:
-		goto yyrule3
-	case c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z' || c >= '\u0080' && c <= 'ÿ':
+		goto yyrule6
+	case c == '?':
 		goto yystate11
 	}
 
@@ -162,24 +160,48 @@ yystate11:
 	c = getc()
 	switch {
 	default:
-		goto yyrule3
-	case c >= '0' && c <= '9' || c >= 'A' && c <= 'Z' || c == '_' || c >= 'a' && c <= 'z' || c >= '\u0080' && c <= 'ÿ':
-		goto yystate11
+		goto yyabort
+	case c == 'p':
+		goto yystate12
 	}
 
-yyrule1: // [ \t\n\r]+
+yystate12:
+	c = getc()
+	switch {
+	default:
+		goto yyabort
+	case c == 'h':
+		goto yystate13
+	}
+
+yystate13:
+	c = getc()
+	switch {
+	default:
+		goto yyabort
+	case c == 'p':
+		goto yystate14
+	}
+
+yystate14:
+	c = getc()
+	goto yyrule1
+
+yyrule1: // "<?php"
+	{
+		{
+			fmt.Printf("LABEL %q\n", buf)
+		}
+		goto yystate0
+	}
+yyrule2: // [ \t\n\r]+
 	{
 		// Ignore whitespace
 		goto yystate0
 	}
-yyrule2: // {D}
+yyrule3: // {D}
 	{
 		fmt.Printf("int %q\n", buf)
-		goto yystate0
-	}
-yyrule3: // {LABEL}
-	{
-		fmt.Printf("LABEL %q\n", buf)
 		goto yystate0
 	}
 yyrule4: // {D}\.{D}?|\.{D}

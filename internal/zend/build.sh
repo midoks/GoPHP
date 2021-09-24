@@ -11,7 +11,6 @@ source ~/.bash_profile
 #goyacc  -o zend_language_parser.go -v zend_language_parser.output zend_language_parser.y
 
 ## golex
-golex \
-	#--DFA \
-	-o zend_scanner.go  zend_scanner.l
-#go run  zend_scanner.go zend_globals.go
+# golex --DFA -o zend_scanner.go  zend_scanner.l
+golex -o zend_scanner.go  zend_scanner.l
+go run  zend_scanner.go zend_globals.go

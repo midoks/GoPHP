@@ -6,7 +6,7 @@ import (
     "fmt"
     "log"
     "os"
-    "strings"
+    //"strings"
 )
 
 //TOKEN
@@ -19,7 +19,7 @@ const (
 )
 
 var (
-    #src      = bufio.NewReader(os.Stdin)
+    src      = bufio.NewReader(os.Stdin)
     buf      []byte
     current  byte
 )
@@ -36,8 +36,8 @@ func getc() byte {
 }
 
 func main() {
-	input := "<?php echo '123'; exit; ?>\n"
-	src := strings.NewReader(input)
+	// input := "<?php echo '123'; exit; ?>\n"
+	// src := strings.NewReader(input)
 	lex_scan()
 }
 
@@ -73,11 +73,15 @@ TOKENS 		[;:,.|^&+-/*=%!~$<>?@]
 ANY_CHAR  	[^]
 NEWLINE  	("\r"|"\n"|"\r\n")
 
+%yyt INITIAL
 %%
-	buf = buf[:0]   	// Code before the first rule is executed before every scan cycle (state 0 action)
+<INITIAL>"<?php" {
+        fmt.Printf("LABEL %q\n", buf) 
+    }
+
+
 [ \t\n\r]+          // Ignore whitespace
 {D}                 fmt.Printf("int %q\n", buf)
-{LABEL}             fmt.Printf("LABEL %q\n", buf)
 {D}\.{D}?|\.{D}     fmt.Printf("float %q\n", buf)
 \0                  return // Exit on EOF or any other error
 .                   fmt.Printf("%q\n", buf) // Printout any other unrecognized stuff
