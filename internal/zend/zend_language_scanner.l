@@ -6,27 +6,32 @@ import (
 
 //STATE
 const (
-	yyc_INITIAL = 0
-	yyc_ST_IN_SCRIPTING = 1
+	yyc_INITIAL = iota
+	yyc_ST_IN_SCRIPTING
 )
-
 //TOKEN
 const (
 	T_EXIT = iota
-	T_OPEN_TAG = iota
-	T_CLOSE_TAG = iota
-	T_ECHO = iota
+	T_OPEN_TAG
+	T_CLOSE_TAG
+	T_ECHO
 )
 
 
 
 func main(){
 	input := "<?php echo '123'; exit;?>\n"
-	lex_scan(input)
+	for{
+		token := lex_scan(input)
+		fmt.Println("token:",token)
+		if token == T_END {
+			break
+		}
+	}
 }
 
-func YYDEBUG(s int64, c byte){
-	fmt.Println(s,c)
+func YYDEBUG(s uint64, c byte){
+	fmt.Println(s,string(c))
 }
 
 func SCNG(yyvar interface{}) int64{
@@ -36,20 +41,29 @@ func SCNG(yyvar interface{}) int64{
 
 func lex_scan(zendlval string) int64 {
 
-var token uint64
+var token int64
 var offset uint64
 
 var yyleng uint64
-YYCURSOR := &LanguageScannerGlobals.YYCursor
-YYSTATE := &LanguageScannerGlobals.YYState
+YYCursor := &LanguageScannerGlobals.YYCursor
+YYState := &LanguageScannerGlobals.YYState
+YYText := &LanguageScannerGlobals.YYText
+
+fmt.Println("YYState[yyc_ST_IN_SCRIPTING]:", yyc_ST_IN_SCRIPTING)
+fmt.Println("YYState[yyc_INITIAL]:", yyc_INITIAL)
+
+/*
+restart:
+	fmt.Println("restart:",*YYCursor,LanguageScannerGlobals.YYState)
+*/
 
 /*!re2c
 re2c:yyfill:check = 0;
 re2c:yyfill:enable = 0;
 re2c:define:YYCTYPE = byte;
-re2c:define:YYPEEK = "zendlval[*YYCURSOR]\n fmt.Println(*YYCURSOR,FileLine(),yych,string(yych))";
-re2c:define:YYGETCONDITION = "*YYSTATE";
-re2c:define:YYSKIP = "*YYCURSOR += 1";
+re2c:define:YYPEEK = "zendlval[*YYCursor]\n\tYYDEBUG(*YYCursor, yych)";
+re2c:define:YYGETCONDITION = "*YYState";
+re2c:define:YYSKIP = "*YYCursor += 1";
 
 LNUM	= [0-9]+("_"[0-9]+)*;
 DNUM	= ({LNUM}?"."{LNUM})|({LNUM}"."{LNUM}?);
@@ -64,35 +78,41 @@ ANY_CHAR = [^];
 NEWLINE = ("\r"|"\n"|"\r\n");
 
 /* compute yyleng before each rule */
-/* <!*> := yyleng = YYCURSOR - LanguageScannerGlobals.YYText */
+<!*> := yyleng = *YYCursor - *YYText
 
 
-<ST_IN_SCRIPTING> "exit" {
+<ST_IN_SCRIPTING>"exit"{
+	token = T_EXIT
 	fmt.Println("exit")
-	fmt.Println(token,offset,yyleng,*YYCURSOR)
-	return  T_EXIT;
+	fmt.Println(token,offset,yyleng,*YYCursor)
+	
 }
 
-<ST_IN_SCRIPTING> "echo" {
+<ST_IN_SCRIPTING>"echo"{
+	token = T_CLOSE_TAG
+	fmt.Println(token,offset,yyleng,*YYCursor)
 	fmt.Println("echo")
-	fmt.Println(token,offset,yyleng,*YYCURSOR)
-	return  T_ECHO;
 }
 
 
-<INITIAL> "<?php" {
-	BEGIN(yyc_ST_IN_SCRIPTING)
-	fmt.Println("<?php")
-	fmt.Println(token,offset,yyleng,*YYCURSOR)
-	return  T_OPEN_TAG;
+<INITIAL>"<?php"{
+	*YYState = yyc_INITIAL
+	token = T_OPEN_TAG
+	fmt.Println(token,offset,yyleng,*YYCursor)
+	fmt.Println("token:T_OPEN_TAG:<?php")
 }
 
-<ST_IN_SCRIPTING>"?>"{NEWLINE}? {
-	BEGIN(yyc_INITIAL);
-	fmt.Println(yyleng,*YYCURSOR)
-	fmt.Println("?>")
-	return T_CLOSE_TAG;
+<ST_IN_SCRIPTING>"?>"{NEWLINE}?{
+	*YYState = yyc_ST_IN_SCRIPTING
+	token = T_CLOSE_TAG
+	fmt.Println(yyleng,*YYCursor)
+	fmt.Println("T_CLOSE_TAG - ?>")
+	goto emit_token_with_ident
 }
 
 */
+emit_token_with_ident:
+	return token;
+
+return token
 }
