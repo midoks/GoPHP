@@ -14,9 +14,9 @@ id string
 
 
 %token <value> NUM
-%token <id> ADD SUB '+' '-'
+%token <value> ADD SUB '+' '-'
 
-%type <id> expr
+%type <value> expr
 
 %start expr
 
